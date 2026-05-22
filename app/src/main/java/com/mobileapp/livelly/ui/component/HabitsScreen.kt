@@ -97,7 +97,7 @@ fun HabitsScreen(
 
                     items(
                         items = habits,
-                        key = { it.name }
+                        key = { it.id }
                     ) { habit ->
 
                         AnimatedVisibility(

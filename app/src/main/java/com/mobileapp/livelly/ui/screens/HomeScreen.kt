@@ -1,36 +1,27 @@
 package com.mobileapp.livelly.ui.screens
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mobileapp.livelly.data.Habit
 import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.data.UserPrefs
-import com.mobileapp.livelly.logic.isCompletedToday
-import com.mobileapp.livelly.logic.updateHabit
 import com.mobileapp.livelly.ui.component.AppBackground
-import com.mobileapp.livelly.ui.component.PrimaryButton
-import com.mobileapp.livelly.ui.component.ProfileHeader
+import com.mobileapp.livelly.ui.component.BottomBar
 
 @Composable
 fun HomeScreen(
@@ -40,99 +31,165 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val habits by HabitPrefs.habitsFlow.collectAsState()
-    val selectedHabit = habits.find { it.name == selectedHabitName }
-    val name = UserPrefs.getName(context)
 
-    val streak = selectedHabit?.streak ?: 0
-    val progress = (streak % 30) / 30f
+    val userName = UserPrefs.getName(context)
+        ?.lowercase()
+        ?.replaceFirstChar { it.uppercase() }
+        ?: ""
 
-    val animatedProgress by animateFloatAsState(progress, tween(800))
-    val animatedStreak by animateIntAsState(streak, tween(500))
-
-    // 🔥 animations
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-
-    val pulse by infiniteTransition.animateFloat(
-        1f, 1.05f,
-        infiniteRepeatable(tween(2000), RepeatMode.Reverse),
-        label = ""
-    )
-
-    val rotation by infiniteTransition.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(12000, easing = LinearEasing)),
-        label = ""
-    )
+    val focusHabit = habits.firstOrNull()
 
     AppBackground {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize().statusBarsPadding()  // ✅ FULL SCREEN FIX
-                .padding(horizontal = 16.dp)
-        ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = {
+                BottomBar(navController)
+            }
+        ) { padding ->
 
-            // 🔝 HEADER
-            ProfileHeader(name)
-
-            Spacer(Modifier.height(20.dp))
-
-            // 📜 HABIT LIST
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 20.dp)
+                    .statusBarsPadding().animateContentSize()
             ) {
+                Spacer(Modifier.height(10.dp))
 
-                items(habits.size) { index ->
+                // HEADER
+                Text(
+                    text = "Good to see you, $userName",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
+                )
 
-                    val habit = habits[index]
-                    val completedToday = isCompletedToday(habit.lastCompleted)
+                Spacer(Modifier.height(6.dp))
 
+                Text(
+                    text = "Consistency creates growth",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.5f)
+                )
+
+                Spacer(Modifier.height(28.dp))
+
+                // TODAY FOCUS
+                Text(
+                    "Today's Focus",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                focusHabit?.let { habit ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
                             .clickable {
-                                navController.navigate("habit_detail/${habit.name}")
+                                navController.navigate(
+                                    "habit_detail/${habit.name}"
+                                )
                             },
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF1F2937).copy(alpha = 0.85f) // 🔥 glass effect
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            Color.White.copy(alpha = 0.05f) // 🔥 subtle premium border
+                            containerColor = Color(0xFF4F46E5)
                         )
                     ) {
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.padding(24.dp)
                         ) {
 
-                            Column {
-                                Text(
-                                    habit.name,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium
+                            Text(
+                                habit.name,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(Modifier.height(10.dp))
+
+                            Text(
+                                "${habit.streak} day streak",
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+
+                            Spacer(Modifier.height(20.dp))
+                            Button(
+                                onClick = {
+                                    navController.navigate(
+                                        "habit_detail/${habit.name}"
+                                    )
+                                },
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White
                                 )
+                            ) {
+                                Text(
+                                    "Open",
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    }
+                }
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                Spacer(Modifier.height(30.dp))
 
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = Color.White.copy(alpha = 0.5f),
-                                        modifier = Modifier.size(14.dp)
+                Text(
+                    "Your Habits",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    items(habits) { habit ->
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate(
+                                        "habit_detail/${habit.name}"
+                                    )
+                                },
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor =
+                                    Color(0xFF1F2937).copy(alpha = 0.85f)
+                            ),
+                            border = BorderStroke(
+                                1.dp,
+                                Color.White.copy(alpha = 0.05f)
+                            )
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(18.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Column {
+
+                                    Text(
+                                        habit.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color.White
                                     )
 
-                                    Spacer(Modifier.width(6.dp))
+                                    Spacer(Modifier.height(4.dp))
 
                                     Text(
                                         "${habit.streak} day streak",
@@ -140,55 +197,31 @@ fun HomeScreen(
                                         color = Color.White.copy(alpha = 0.6f)
                                     )
                                 }
-                            }
 
-                            Button(
-                                onClick = {
-                                    val updated = habits.map {
-                                        if (it.name == habit.name) updateHabit(it)
-                                        else it
-                                    }
-                                    HabitPrefs.saveHabits(context, updated)
-                                },
-                                enabled = !completedToday,
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (completedToday)
-                                        Color(0xFF374151)
-                                    else
-                                        Color(0xFF4F46E5)
-                                )
-                            ) {
-                                Text(
-                                    if (completedToday) "Done" else "Complete",
-                                    color = Color.White
-                                )
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = Color(0xFF4F46E5).copy(alpha = 0.15f)
+                                ) {
+
+                                    Text(
+                                        "Open",
+                                        modifier = Modifier.padding(
+                                            horizontal = 14.dp,
+                                            vertical = 8.dp
+                                        ),
+                                        color = Color(0xFF818CF8),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                     }
+
+                    item {
+                        Spacer(Modifier.height(100.dp))
+                    }
                 }
             }
-
-            // 🔻 FIXED BUTTONS
-            PrimaryButton(
-                text = "Create Habit",
-                onClick = {
-                    navController.navigate("habits_onboarding")
-                }
-            )
-
-            Spacer(Modifier.height(10.dp))
-
-            PrimaryButton(
-                text = "View Habits",
-                onClick = {
-                    navController.navigate("habits_list")
-                }
-            )
-
-            Spacer(Modifier.height(16.dp))
         }
     }
 }
-
-

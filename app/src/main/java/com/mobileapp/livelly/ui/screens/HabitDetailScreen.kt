@@ -1,5 +1,6 @@
 package com.mobileapp.livelly.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -59,7 +60,7 @@ fun HabitDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding(),
+                .statusBarsPadding().animateContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 

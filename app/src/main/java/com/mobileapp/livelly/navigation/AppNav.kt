@@ -35,27 +35,7 @@ fun AppNav() {
         navController = navController,
         startDestination = startDestination,
 
-        enterTransition = {
-            scaleIn(
-                initialScale = 0.98f,
-                animationSpec = tween(250)
-            )
-        },
 
-        exitTransition = {
-            ExitTransition.None   // ✅ prevents flash
-        },
-
-        popEnterTransition = {
-            scaleIn(
-                initialScale = 0.98f,
-                animationSpec = tween(250)
-            )
-        },
-
-        popExitTransition = {
-            ExitTransition.None   // ✅ prevents flash
-        }
     ) {
 
         composable("start") {

@@ -1,10 +1,9 @@
 package com.mobileapp.livelly.data
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import java.util.UUID
 
-@Entity
 data class Habit(
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
     val streak: Int = 0,
     val lastCompleted: Long = 0L

@@ -1,6 +1,7 @@
 package com.mobileapp.livelly.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -54,7 +55,7 @@ fun HabitSelectionScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
-                    .statusBarsPadding()
+                    .statusBarsPadding().animateContentSize()
             ) {
 
                 // 🔝 TITLE
@@ -120,7 +121,27 @@ fun HabitSelectionScreen(
                                 Color.White.copy(alpha = 0.05f)
                             ),
                             modifier = Modifier.clickable {
-                                // your existing logic
+
+                                // 🚫 already added
+                                if (savedHabits.any { it.name == habit }) {
+
+                                    Toast.makeText(
+                                        context,
+                                        "Already added",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    return@clickable
+                                }
+
+                                // ✅ select / unselect
+                                selectedHabits =
+                                    if (isSelected)
+                                        selectedHabits - habit
+                                    else
+                                        selectedHabits + habit
+
+                                alertMessage = null
                             }
                         ) {
                             Text(
@@ -176,12 +197,12 @@ fun HabitSelectionScreen(
                 )
 
                 if (showError && selectedHabits.isEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "Select at least one habit",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Toast.makeText(
+                        context,
+                        "Select atleast one habit",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                 }
             }
         }

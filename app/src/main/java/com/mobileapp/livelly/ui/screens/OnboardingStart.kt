@@ -1,5 +1,6 @@
 package com.mobileapp.livelly.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +37,7 @@ fun OnboardingStart(onStart: () -> Unit) {
         AnimatedScreen {
 
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().animateContentSize(),
                 contentAlignment = Alignment.Center
             ) {
 

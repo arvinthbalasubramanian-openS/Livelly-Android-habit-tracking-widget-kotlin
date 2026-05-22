@@ -2,6 +2,7 @@ package com.mobileapp.livelly.ui.screens
 
 import android.app.TimePickerDialog
 import android.content.Context
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,7 @@ fun TimeSelectionScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .statusBarsPadding(),
+                    .statusBarsPadding().animateContentSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 

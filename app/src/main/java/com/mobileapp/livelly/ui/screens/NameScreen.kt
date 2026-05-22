@@ -1,5 +1,6 @@
 package com.mobileapp.livelly.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +37,7 @@ fun NameScreen(onNext: (String) -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .statusBarsPadding()
+                    .statusBarsPadding().animateContentSize()
 
             ) {
 

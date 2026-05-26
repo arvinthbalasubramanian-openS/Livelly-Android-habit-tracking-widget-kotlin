@@ -84,4 +84,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.animation:animation:1.6.0")
     implementation("androidx.compose.foundation:foundation:1.6.0")
+    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.github.yalantis:ucrop:2.2.8")
 }

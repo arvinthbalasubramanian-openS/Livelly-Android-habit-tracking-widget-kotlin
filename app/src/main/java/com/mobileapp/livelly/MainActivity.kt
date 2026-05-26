@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
-
         setContent {
             AppNav()
         }

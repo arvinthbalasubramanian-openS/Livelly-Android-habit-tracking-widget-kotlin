@@ -2,4 +2,22 @@
 <resources>
 
     <style name="Theme.Livelly" parent="android:Theme.Material.Light.NoActionBar" />
+
+
+    <style name="UCropTheme"
+        parent="Theme.AppCompat.Light.NoActionBar">
+
+        <item name="android:statusBarColor">
+            #111827
+        </item>
+
+        <item name="android:windowFullscreen">
+            false
+        </item>
+
+        <item name="android:fitsSystemWindows">
+            true
+        </item>
+
+    </style>
 </resources>

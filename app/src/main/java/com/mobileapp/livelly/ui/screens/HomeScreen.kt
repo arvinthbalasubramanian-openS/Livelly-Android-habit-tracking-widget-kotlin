@@ -2,6 +2,7 @@ package com.mobileapp.livelly.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,13 @@ import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.data.UserPrefs
 import com.mobileapp.livelly.ui.component.AppBackground
 import com.mobileapp.livelly.ui.component.BottomBar
+import coil.compose.AsyncImage
+import com.mobileapp.livelly.data.ProfilePrefs
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.ui.draw.clip
+import com.mobileapp.livelly.navigation.Routes
 
 @Composable
 fun HomeScreen(
@@ -31,6 +39,8 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val habits by HabitPrefs.habitsFlow.collectAsState()
+    val profileImage =
+        ProfilePrefs.getProfileImage(context)
 
     val userName = UserPrefs.getName(context)
         ?.lowercase()
@@ -58,19 +68,59 @@ fun HomeScreen(
                 Spacer(Modifier.height(10.dp))
 
                 // HEADER
-                Text(
-                    text = "Good to see you, $userName",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                Spacer(Modifier.height(6.dp))
+                    Column {
 
-                Text(
-                    text = "Consistency creates growth",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.5f)
-                )
+                        Text(
+                            text = "Good to see you, $userName",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+
+                        Spacer(Modifier.height(6.dp))
+
+                        Text(
+                            text = "Consistency creates growth",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.5f)
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF374151))
+                            .clickable {
+                                navController.navigate(Routes.SETTINGS)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        if (profileImage != null) {
+
+                            AsyncImage(
+                                model = profileImage,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+
+                        } else {
+
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(28.dp))
 

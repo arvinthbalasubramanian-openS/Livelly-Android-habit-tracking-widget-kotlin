@@ -38,52 +38,52 @@ fun AppNav() {
 
     ) {
 
-        composable("start") {
+        composable(Routes.START) {
             OnboardingStart {
-                navController.navigate("name")
+                navController.navigate(Routes.NAME)
             }
         }
 
-        composable("name") {
+        composable(Routes.NAME) {
             NameScreen { name ->
                 UserPrefs.saveName(context, name)
-                navController.navigate("habits_onboarding") {
-                    popUpTo("start") { inclusive = true }
+                navController.navigate(Routes.HABITS_ONBOARDING) {
+                    popUpTo(Routes.START) { inclusive = true }
                 }
             }
         }
 
-        composable("habits_onboarding") {
+        composable(Routes.HABITS_ONBOARDING) {
             HabitSelectionScreen(
-                onNext = { navController.navigate("time") },
+                onNext = { navController.navigate(Routes.TIME) },
                 onCustomHabitClick = {
-                    navController.navigate("custom_habit")
+                    navController.navigate(Routes.CUSTOM_HABIT)
                 }
             )
         }
 
-        composable("time") {
+        composable(Routes.TIME) {
             TimeSelectionScreen(navController)
         }
 
-        composable("custom_habit") {
+        composable(Routes.CUSTOM_HABIT) {
             CustomHabitScreen { habitName ->
                 val existing = HabitPrefs.habitsFlow.value
                 val updated = existing + Habit(name = habitName)
 
                 HabitPrefs.saveHabits(context, updated)
-                navController.navigate("time")
+                navController.navigate(Routes.TIME)
             }
         }
 
-        composable("success") {
+        composable(Routes.SUCCESS) {
             SuccessScreen {
-                navController.navigate("home")
+                navController.navigate(Routes.HOME)
             }
         }
 
-        composable("home/{habitName}") { backStackEntry ->
-            val habitName = backStackEntry.arguments?.getString("habitName")
+        composable(Routes.HOME_HABIT_NAME) { backStackEntry ->
+            val habitName = backStackEntry.arguments?.getString(Routes.HABIT_NAME)
 
             HomeScreen(
                 selectedHabitName = habitName,
@@ -91,28 +91,32 @@ fun AppNav() {
             )
         }
 
-        composable("home") {
+        composable(Routes.HOME) {
             HomeScreen(
                 selectedHabitName = null,
                 navController = navController
             )
         }
 
-        composable("habits_list") {
+        composable(Routes.HABITS_LIST) {
             HabitsScreen(
                 selectedHabitName = null,
                 navController = navController
             )
         }
 
-        composable("habit_detail/{habitName}") { backStackEntry ->
+        composable(Routes.HABIT_DETAIL) { backStackEntry ->
             val habitName =
-                backStackEntry.arguments?.getString("habitName") ?: ""
+                backStackEntry.arguments?.getString(Routes.HABIT_NAME) ?: ""
 
             HabitDetailScreen(
                 habitName = habitName,
                 navController = navController
             )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(navController)
         }
     }
 }

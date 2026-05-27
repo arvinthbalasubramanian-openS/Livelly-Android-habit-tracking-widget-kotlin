@@ -3,7 +3,6 @@ package com.mobileapp.livelly.ui.component
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,9 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobileapp.livelly.data.Habit
 import com.mobileapp.livelly.data.HabitPrefs
@@ -43,15 +40,12 @@ fun HabitsScreen(
     var removingHabit by remember { mutableStateOf<String?>(null) }
 
     AppBackground {
-        Scaffold(
-            containerColor = Color.Transparent,
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { padding ->
-
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
                     .padding(horizontal = 16.dp)
                     .statusBarsPadding()
             ) {
@@ -60,7 +54,7 @@ fun HabitsScreen(
                 Text(
                     "Your Habits",
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -78,7 +72,7 @@ fun HabitsScreen(
                             Text(
                                 "No habits yet",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = Color.White.copy(alpha = 0.7f)
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                             )
 
                             Spacer(Modifier.height(6.dp))
@@ -86,7 +80,7 @@ fun HabitsScreen(
                             Text(
                                 "Create your first habit to get started",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.5f)
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                             )
                         }
                     }
@@ -111,14 +105,17 @@ fun HabitsScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
+                                    .padding(vertical = 8.dp)
+                                    .clickable {
+                                        navController.navigate("habit_detail/${habit.name}")
+                                    },
                                 shape = RoundedCornerShape(18.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF1F2937).copy(alpha = 0.85f)
+                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
                                 ),
                                 border = BorderStroke(
                                     1.dp,
-                                    Color.White.copy(alpha = 0.05f)
+                                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f)
                                 )
                             ) {
 
@@ -135,7 +132,7 @@ fun HabitsScreen(
                                         Text(
                                             habit.name,
                                             style = MaterialTheme.typography.titleMedium,
-                                            color = Color.White
+                                            color = MaterialTheme.colorScheme.onBackground
                                         )
 
                                         Spacer(Modifier.height(4.dp))
@@ -143,14 +140,14 @@ fun HabitsScreen(
                                         Text(
                                             "${habit.streak} day streak",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = Color.White.copy(alpha = 0.6f)
+                                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                         )
                                     }
 
                                     Icon(
                                         imageVector = Icons.Default.Delete,
                                         contentDescription = null,
-                                        tint = Color.White.copy(alpha = 0.4f),
+                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                                         modifier = Modifier
                                             .size(20.dp)
                                             .clickable {
@@ -173,6 +170,11 @@ fun HabitsScreen(
                     }
                 )
             }
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 

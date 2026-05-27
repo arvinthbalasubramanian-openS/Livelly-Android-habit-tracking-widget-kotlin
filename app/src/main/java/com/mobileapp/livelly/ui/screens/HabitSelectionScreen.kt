@@ -62,7 +62,7 @@ fun HabitSelectionScreen(
                 Text(
                     "What do you want to build?",
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -84,7 +84,7 @@ fun HabitSelectionScreen(
                     ) {
                         Text(
                             "Create your own habit",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -96,7 +96,7 @@ fun HabitSelectionScreen(
                 Text(
                     "Try these ideas",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -115,10 +115,10 @@ fun HabitSelectionScreen(
                             color = if (isSelected)
                                 Color(0xFF4F46E5)
                             else
-                                Color(0xFF1F2937).copy(alpha = 0.8f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                             border = BorderStroke(
                                 1.dp,
-                                Color.White.copy(alpha = 0.05f)
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f)
                             ),
                             modifier = Modifier.clickable {
 
@@ -150,7 +150,7 @@ fun HabitSelectionScreen(
                                     horizontal = 16.dp,
                                     vertical = 10.dp
                                 ),
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }

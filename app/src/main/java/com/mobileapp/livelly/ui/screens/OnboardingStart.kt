@@ -27,7 +27,9 @@ import com.mobileapp.livelly.ui.component.AnimatedScreen
 import com.mobileapp.livelly.ui.component.AppBackground
 import com.mobileapp.livelly.ui.component.PrimaryButton
 import com.mobileapp.livelly.ui.theme.Accent
-import com.mobileapp.livelly.ui.theme.DarkBg
+import com.mobileapp.livelly.ui.theme.DarkBackground
+import com.mobileapp.livelly.ui.theme.TextDark
+import com.mobileapp.livelly.ui.theme.TextLight
 import com.mobileapp.livelly.ui.theme.TextPrimary
 import com.mobileapp.livelly.ui.theme.TextSecondary
 

@@ -8,7 +8,11 @@
         parent="Theme.AppCompat.Light.NoActionBar">
 
         <item name="android:statusBarColor">
-            #111827
+            @android:color/transparent
+        </item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">
+            true
         </item>
 
         <item name="android:windowFullscreen">

@@ -27,13 +27,17 @@ import com.mobileapp.livelly.data.SettingsPrefs
 import com.mobileapp.livelly.data.UserPrefs
 import com.mobileapp.livelly.navigation.Routes
 import com.mobileapp.livelly.ui.component.AppBackground
-import com.mobileapp.livelly.ui.component.BottomBar
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import coil.compose.AsyncImage
 import com.mobileapp.livelly.data.ProfilePrefs
+import com.mobileapp.livelly.ui.theme.ThemeState
+import com.mobileapp.livelly.notifications.NotificationScheduler
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import java.io.File
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.UCropActivity
@@ -185,305 +189,320 @@ fun SettingsScreen(
 
     AppBackground {
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            bottomBar = {
-                BottomBar(navController)
-            }
-        ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
+                .statusBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .animateContentSize()
+        ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 20.dp)
-                    .statusBarsPadding()
-                    .verticalScroll(rememberScrollState())
-                    .animateContentSize()
+            Spacer(Modifier.height(10.dp))
+
+            // 🔝 TITLE
+            Text(
+                "Settings",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            // 👤 PROFILE CARD
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f)
+                )
             ) {
 
-                Spacer(Modifier.height(10.dp))
-
-                // 🔝 TITLE
-                Text(
-                    "Settings",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.height(28.dp))
-
-                // 👤 PROFILE CARD
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor =
-                            Color(0xFF1F2937).copy(alpha = 0.85f)
-                    ),
-                    border = BorderStroke(
-                        1.dp,
-                        Color.White.copy(alpha = 0.05f)
-                    )
-                ) {
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Box(
-                            modifier = Modifier
-                                .size(90.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF374151))
-                                .border(
-                                    1.dp,
-                                    Color.White.copy(alpha = 0.08f),
-                                    CircleShape
-                                )
-                                .clickable {
-
-                                    launcher.launch(arrayOf("image/*"))
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-
-                            if (profileImageUri != null) {
-
-                                AsyncImage(
-                                    model = profileImageUri,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-
-                            } else {
-
-                                Icon(
-                                    imageVector = Icons.Outlined.Person,
-                                    contentDescription = null,
-                                    tint = Color.White.copy(alpha = 0.8f),
-                                    modifier = Modifier.size(40.dp)
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            "Tap to change photo",
-                            color = Color.White.copy(alpha = 0.45f),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-
-
-                        Spacer(Modifier.height(18.dp))
-
-                        Text(
-                            text = userName,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
-                        )
-
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            text = "user@email.com",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.6f)
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                // 🎨 APPEARANCE
-                SettingsSectionTitle("Appearance")
-
-                SettingsSwitchItem(
-                    icon = Icons.Outlined.DarkMode,
-                    title = "Dark Theme",
-                    checked = darkThemeEnabled,
-                    onCheckedChange = {
-
-                        darkThemeEnabled = it
-
-                        SettingsPrefs.saveDarkTheme(
-                            context,
-                            it
-                        )
-
-                        Toast.makeText(
-                            context,
-                            if (it)
-                                "Dark theme enabled"
-                            else
-                                "Dark theme disabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // 🔔 NOTIFICATIONS
-                SettingsSectionTitle("Notifications")
-
-                SettingsSwitchItem(
-                    icon = Icons.Outlined.Notifications,
-                    title = "Daily Reminders",
-                    checked = notificationsEnabled,
-                    onCheckedChange = {
-                        notificationsEnabled = it
-
-                        SettingsPrefs.saveDailyReminder(
-                            context,
-                            it
-                        )
-
-                        Toast.makeText(
-                            context,
-                            if (it)
-                                "Daily reminders enabled"
-                            else
-                                "Daily reminders disabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // 🧩 WIDGET SETTINGS
-                SettingsSectionTitle("Widget")
-
-                SettingsSwitchItem(
-                    icon = Icons.Outlined.GridView,
-                    title = "Compact Widget",
-                    checked = compactWidget,
-                    onCheckedChange = {
-                        compactWidget = it
-
-                        SettingsPrefs.saveCompactWidget(
-                            context,
-                            it
-                        )
-
-                        Toast.makeText(
-                            context,
-                            if (it)
-                                "Compact widget enabled"
-                            else
-                                "Compact widget disabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                SettingsSwitchItem(
-                    icon = Icons.Outlined.Visibility,
-                    title = "Transparent Widget",
-                    checked = transparentWidget,
-                    onCheckedChange = {
-                        transparentWidget = it
-
-                        SettingsPrefs.saveTransparentWidget(
-                            context,
-                            it
-                        )
-
-                        Toast.makeText(
-                            context,
-                            if (it)
-                                "Transparent widget enabled"
-                            else
-                                "Transparent widget disabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // 📦 DATA
-                SettingsSectionTitle("Data")
-
-                SettingsItem(
-                    icon = Icons.Outlined.Backup,
-                    title = "Backup Data",
-                    subtitle = "Save your habits securely",
-                    onClick = {
-                        Toast.makeText(
-                            context,
-                            "Coming soon",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                SettingsItem(
-                    icon = Icons.Outlined.RestartAlt,
-                    title = "Reset Progress",
-                    subtitle = "Clear streaks and history",
-                    onClick = {
-                        Toast.makeText(
-                            context,
-                            "Coming soon",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // 🔴 SIGN OUT
-                Card(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-
-                            navController.navigate(Routes.START) {
-                                popUpTo(0)
-                            }
-                        },
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor =
-                            Color(0xFF1F2937).copy(alpha = 0.75f)
-                    ),
-                    border = BorderStroke(
-                        1.dp,
-                        Color.Red.copy(alpha = 0.08f)
-                    )
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement =
-                            Arrangement.SpaceBetween
+                            .size(90.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f),
+                                CircleShape
+                            )
+                            .clickable {
+
+                                launcher.launch(arrayOf("image/*"))
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
 
-                        Text(
-                            "Sign Out",
-                            color = Color.Red.copy(alpha = 0.9f),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        if (profileImageUri != null) {
 
-                        Icon(
-                            imageVector = Icons.Outlined.ExitToApp,
-                            contentDescription = null,
-                            tint = Color.Red.copy(alpha = 0.9f)
-                        )
+                            AsyncImage(
+                                model = profileImageUri,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+
+                        } else {
+
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+
+                    Text(
+                        "Tap to change photo",
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+
+                    Spacer(Modifier.height(18.dp))
+
+                    Text(
+                        text = userName,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        text = "user@email.com",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // 🎨 APPEARANCE
+            SettingsSectionTitle("Appearance")
+
+            SettingsSwitchItem(
+                icon = Icons.Outlined.DarkMode,
+                title = "Dark Theme",
+                checked = darkThemeEnabled,
+                onCheckedChange = {
+
+                    darkThemeEnabled = it
+
+                    ThemeState.isDarkTheme.value = it
+
+                    SettingsPrefs.saveDarkTheme(
+                        context,
+                        it
+                    )
+
+                    Toast.makeText(
+                        context,
+                        if (it)
+                            "Dark theme enabled"
+                        else
+                            "Light theme enabled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // 🔔 NOTIFICATIONS
+            SettingsSectionTitle("Notifications")
+
+            SettingsSwitchItem(
+                icon = Icons.Outlined.Notifications,
+                title = "Daily Reminders",
+                checked = notificationsEnabled,
+                onCheckedChange = {
+                    notificationsEnabled = it
+
+                    SettingsPrefs.saveDailyReminder(
+                        context,
+                        it
+                    )
+
+                    if (it) {
+                        val hour = SettingsPrefs.getReminderHour(context)
+                        val minute = SettingsPrefs.getReminderMinute(context)
+                        NotificationScheduler.scheduleDailyReminder(context, hour, minute)
+                        
+                        val calendar = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, hour)
+                            set(Calendar.MINUTE, minute)
+                            set(Calendar.SECOND, 0)
+                            if (timeInMillis <= System.currentTimeMillis()) {
+                                add(Calendar.DAY_OF_YEAR, 1)
+                            }
+                        }
+                        
+                        val sdf = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
+                        val dateString = sdf.format(calendar.time)
+                        
+                        Toast.makeText(
+                            context,
+                            "Reminder set! Next one: $dateString",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        NotificationScheduler.cancelDailyReminder(context)
+                        Toast.makeText(
+                            context,
+                            "Daily reminders disabled",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
+            )
 
-                Spacer(Modifier.height(120.dp))
+            Spacer(Modifier.height(24.dp))
+
+            // 🧩 WIDGET SETTINGS
+            SettingsSectionTitle("Widget")
+
+            SettingsSwitchItem(
+                icon = Icons.Outlined.GridView,
+                title = "Compact Widget",
+                checked = compactWidget,
+                onCheckedChange = {
+                    compactWidget = it
+
+                    SettingsPrefs.saveCompactWidget(
+                        context,
+                        it
+                    )
+
+                    Toast.makeText(
+                        context,
+                        if (it)
+                            "Compact widget enabled"
+                        else
+                            "Compact widget disabled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            SettingsSwitchItem(
+                icon = Icons.Outlined.Visibility,
+                title = "Transparent Widget",
+                checked = transparentWidget,
+                onCheckedChange = {
+                    transparentWidget = it
+
+                    SettingsPrefs.saveTransparentWidget(
+                        context,
+                        it
+                    )
+
+                    Toast.makeText(
+                        context,
+                        if (it)
+                            "Transparent widget enabled"
+                        else
+                            "Transparent widget disabled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // 📦 DATA
+            SettingsSectionTitle("Data")
+
+            SettingsItem(
+                icon = Icons.Outlined.Backup,
+                title = "Backup Data",
+                subtitle = "Save your habits securely",
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Coming soon",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            SettingsItem(
+                icon = Icons.Outlined.RestartAlt,
+                title = "Reset Progress",
+                subtitle = "Clear streaks and history",
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Coming soon",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // 🔴 SIGN OUT
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+
+                        navController.navigate(Routes.START) {
+                            popUpTo(0)
+                        }
+                    },
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.75f)
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    Color.Red.copy(alpha = 0.08f)
+                )
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        "Sign Out",
+                        color = Color.Red.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Icon(
+                        imageVector = Icons.Outlined.ExitToApp,
+                        contentDescription = null,
+                        tint = Color.Red.copy(alpha = 0.9f)
+                    )
+                }
             }
+
+            Spacer(Modifier.height(120.dp))
         }
     }
 }
@@ -494,7 +513,7 @@ fun SettingsSectionTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onBackground,
         fontWeight = FontWeight.SemiBold
     )
 
@@ -519,7 +538,7 @@ fun SettingsItem(
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor =
-                Color(0xFF1F2937).copy(alpha = 0.75f)
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.75f)
         )
     ) {
 
@@ -533,7 +552,7 @@ fun SettingsItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.8f)
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
             )
 
             Spacer(Modifier.width(16.dp))
@@ -542,7 +561,7 @@ fun SettingsItem(
 
                 Text(
                     title,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -550,7 +569,7 @@ fun SettingsItem(
 
                 Text(
                     subtitle,
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -573,7 +592,7 @@ fun SettingsSwitchItem(
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor =
-                Color(0xFF1F2937).copy(alpha = 0.75f)
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.75f)
         )
     ) {
 
@@ -593,14 +612,14 @@ fun SettingsSwitchItem(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.8f)
+                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                 )
 
                 Spacer(Modifier.width(16.dp))
 
                 Text(
                     title,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleMedium
                 )
             }

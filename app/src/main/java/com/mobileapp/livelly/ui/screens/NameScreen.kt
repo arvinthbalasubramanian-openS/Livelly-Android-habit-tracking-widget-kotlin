@@ -43,7 +43,7 @@ fun NameScreen(onNext: (String) -> Unit) {
 
                 Spacer(Modifier.height(40.dp))
 
-                Text("Firstly, what's your name?", color = Color.White, style = MaterialTheme.typography.titleLarge,)
+                Text("Firstly, what's your name?", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.titleLarge,)
 
                 Spacer(Modifier.height(20.dp))
 

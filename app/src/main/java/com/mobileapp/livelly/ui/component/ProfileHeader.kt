@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +34,7 @@ fun ProfileHeader(name: String?) {
         Box(
             modifier = Modifier
                 .size(50.dp)
-                .background(Color.DarkGray, shape = CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
         )
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -42,13 +43,13 @@ fun ProfileHeader(name: String?) {
 
             Text(
                 text = "Good to see you",
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
 
             Text(
                 name?.replaceFirstChar { it.uppercase() } ?: "",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

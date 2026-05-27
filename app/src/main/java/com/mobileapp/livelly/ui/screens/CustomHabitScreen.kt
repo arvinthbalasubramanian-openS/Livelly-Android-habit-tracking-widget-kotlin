@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -30,11 +31,16 @@ import com.mobileapp.livelly.ui.component.PrimaryButton
 
 
 @Composable
-fun CustomHabitScreen(onNext: (String) -> Unit) {
+fun CustomHabitScreen(
+    onNext: (String, Int) -> Unit
+) {
 
     var habitName by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    var target by remember {
+        mutableStateOf("30")
+    }
 
     AppBackground {
         Column(
@@ -48,7 +54,7 @@ fun CustomHabitScreen(onNext: (String) -> Unit) {
             Text(
                 "Create your habit",
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.height(20.dp))
@@ -63,7 +69,7 @@ fun CustomHabitScreen(onNext: (String) -> Unit) {
                 placeholder = {
                     Text(
                         "Enter your habit name",
-                        color = Color.White.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
                     )
                 },
 
@@ -74,13 +80,13 @@ fun CustomHabitScreen(onNext: (String) -> Unit) {
                 colors = TextFieldDefaults.colors(
 
                     focusedContainerColor =
-                        Color(0xFF1F2937).copy(alpha = 0.85f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
 
                     unfocusedContainerColor =
-                        Color(0xFF1F2937).copy(alpha = 0.65f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.65f),
 
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
 
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -106,9 +112,25 @@ fun CustomHabitScreen(onNext: (String) -> Unit) {
                         ).show()
 
                     } else {
-                        onNext(habitName)
+                        onNext(
+                            habitName,
+                            target.toIntOrNull() ?: 30
+                        )
                     }
                 }
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = target,
+                onValueChange = {
+                    target = it
+                },
+                label = {
+                    Text("Target days")
+                },
+                singleLine = true
             )
         }
     }

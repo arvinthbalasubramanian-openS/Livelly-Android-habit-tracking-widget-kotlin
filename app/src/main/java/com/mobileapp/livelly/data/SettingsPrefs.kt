@@ -18,6 +18,9 @@ object SettingsPrefs {
     private const val TRANSPARENT_WIDGET =
         "transparent_widget"
 
+    private const val REMINDER_HOUR = "reminder_hour"
+    private const val REMINDER_MINUTE = "reminder_minute"
+
     // DARK THEME
     fun saveDarkTheme(
         context: Context,
@@ -88,6 +91,21 @@ object SettingsPrefs {
     ): Boolean {
         return prefs(context)
             .getBoolean(TRANSPARENT_WIDGET, true)
+    }
+
+    fun saveReminderTime(context: Context, hour: Int, minute: Int) {
+        prefs(context).edit()
+            .putInt(REMINDER_HOUR, hour)
+            .putInt(REMINDER_MINUTE, minute)
+            .apply()
+    }
+
+    fun getReminderHour(context: Context): Int {
+        return prefs(context).getInt(REMINDER_HOUR, 9)
+    }
+
+    fun getReminderMinute(context: Context): Int {
+        return prefs(context).getInt(REMINDER_MINUTE, 0)
     }
 
     private fun prefs(context: Context) =

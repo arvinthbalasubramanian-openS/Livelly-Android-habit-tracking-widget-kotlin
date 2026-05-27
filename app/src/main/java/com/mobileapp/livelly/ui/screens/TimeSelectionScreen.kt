@@ -1,8 +1,15 @@
 package com.mobileapp.livelly.ui.screens
 
+import android.Manifest
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mobileapp.livelly.data.SettingsPrefs
+import com.mobileapp.livelly.notifications.NotificationScheduler
 import com.mobileapp.livelly.ui.component.AnimatedScreen
 import com.mobileapp.livelly.ui.component.AppBackground
 import com.mobileapp.livelly.ui.component.PrimaryButton
@@ -123,18 +132,72 @@ fun TimeSelectionScreen(navController: NavController) {
                     )
                 }
 
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        proceedWithSelection(context, selected, navController)
+                    } else {
+                        Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+                        proceedWithSelection(context, selected, navController) // Still proceed, but user won't get notifications
+                    }
+                }
+
                 PrimaryButton(
                     text = "Continue",
                     onClick = {
                         if (selected.isEmpty()) {
                             showError = true
                         } else {
-                            navController.navigate("success")
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                when (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)) {
+                                    PackageManager.PERMISSION_GRANTED -> {
+                                        proceedWithSelection(context, selected, navController)
+                                    }
+                                    else -> {
+                                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                }
+                            } else {
+                                proceedWithSelection(context, selected, navController)
+                            }
                         }
                     }
                 )
             }
         }
+    }
+}
+
+private fun proceedWithSelection(context: Context, selected: String, navController: NavController) {
+    val (hour, minute) = parseTime(selected)
+    SettingsPrefs.saveReminderTime(context, hour, minute)
+    SettingsPrefs.saveDailyReminder(context, true)
+    NotificationScheduler.scheduleDailyReminder(context, hour, minute)
+
+    Toast.makeText(
+        context,
+        "Daily reminder set for $selected",
+        Toast.LENGTH_SHORT
+    ).show()
+
+    navController.navigate("success")
+}
+
+fun parseTime(timeStr: String): Pair<Int, Int> {
+    return try {
+        val parts = timeStr.split(" ")
+        val timeParts = parts[0].split(":")
+        var hour = timeParts[0].toInt()
+        val minute = timeParts[1].toInt()
+        val amPm = parts[1]
+
+        if (amPm == "PM" && hour < 12) hour += 12
+        if (amPm == "AM" && hour == 12) hour = 0
+
+        Pair(hour, minute)
+    } catch (e: Exception) {
+        Pair(9, 0) // Fallback
     }
 }
 

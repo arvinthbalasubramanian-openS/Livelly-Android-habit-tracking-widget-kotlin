@@ -5,8 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,7 +20,6 @@ import androidx.navigation.NavController
 import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.data.UserPrefs
 import com.mobileapp.livelly.ui.component.AppBackground
-import com.mobileapp.livelly.ui.component.BottomBar
 import coil.compose.AsyncImage
 import com.mobileapp.livelly.data.ProfilePrefs
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.draw.clip
 import com.mobileapp.livelly.navigation.Routes
+import com.mobileapp.livelly.ui.theme.DarkBackground
+import com.mobileapp.livelly.ui.theme.ThemeState
+
 
 @Composable
 fun HomeScreen(
@@ -51,227 +51,206 @@ fun HomeScreen(
 
     AppBackground {
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            bottomBar = {
-                BottomBar(navController)
-            }
-        ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
+                .statusBarsPadding()
+                .animateContentSize()
+        ) {
+            Spacer(Modifier.height(10.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 20.dp)
-                    .statusBarsPadding().animateContentSize()
+            // HEADER
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(Modifier.height(10.dp))
 
-                // HEADER
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column {
+
+                    Text(
+                        text = "Good to see you, $userName",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        text = "Consistency creates growth",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable {
+                            navController.navigate(Routes.SETTINGS)
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
 
-                    Column {
+                    if (profileImage != null) {
 
-                        Text(
-                            text = "Good to see you, $userName",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
+                        AsyncImage(
+                            model = profileImage,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
                         )
 
-                        Spacer(Modifier.height(6.dp))
+                    } else {
 
-                        Text(
-                            text = "Consistency creates growth",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.5f)
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                         )
                     }
+                }
+            }
 
-                    Box(
+            Spacer(Modifier.height(28.dp))
+
+            // TODAY FOCUS
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Routes.HABITS_LIST)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (habits.isEmpty()) "Add habits to track" else "Today's Focus",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                if (habits.isNotEmpty()) {
+                    Text(
+                        text = "See all",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF4F46E5) // Using the app's primary indigo color
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            if (habits.isEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate(Routes.HABITS_ONBOARDING)
+                        },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
                         modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF374151))
-                            .clickable {
-                                navController.navigate(Routes.SETTINGS)
-                            },
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-
-                        if (profileImage != null) {
-
-                            AsyncImage(
-                                model = profileImage,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize()
+                        Text(
+                            "Start your journey today",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                navController.navigate(Routes.HABITS_ONBOARDING)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4F46E5)
                             )
-
-                        } else {
-
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.8f)
-                            )
+                        ) {
+                            Text("Add Habit")
                         }
                     }
                 }
+            }
 
-                Spacer(Modifier.height(28.dp))
+            focusHabit?.let { habit ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate(
+                                "habit_detail/${habit.name}"
+                            )
+                        },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF4F46E5)
+                    )
+                ) {
 
-                // TODAY FOCUS
-                Text(
-                    "Today's Focus",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
+                    Column(
+                        modifier = Modifier.padding(24.dp)
+                    ) {
 
-                Spacer(Modifier.height(12.dp))
+                        Text(
+                            habit.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                focusHabit?.let { habit ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                        Spacer(Modifier.height(10.dp))
+
+                        Text(
+                            "${habit.streak} day streak",
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+                        Button(
+                            onClick = {
                                 navController.navigate(
                                     "habit_detail/${habit.name}"
                                 )
                             },
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF4F46E5)
-                        )
-                    ) {
+                            colors = ButtonDefaults.buttonColors(
 
-                        Column(
-                            modifier = Modifier.padding(24.dp)
-                        ) {
-
-                            Text(
-                                habit.name,
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(Modifier.height(10.dp))
-
-                            Text(
-                                "${habit.streak} day streak",
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-
-                            Spacer(Modifier.height(20.dp))
-                            Button(
-                                onClick = {
-                                    navController.navigate(
-                                        "habit_detail/${habit.name}"
-                                    )
-                                },
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.White
-                                )
-                            ) {
-                                Text(
-                                    "Open",
-                                    color = Color.Black
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(30.dp))
-
-                Text(
-                    "Your Habits",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    items(habits) { habit ->
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    navController.navigate(
-                                        "habit_detail/${habit.name}"
-                                    )
-                                },
-                            shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
                                 containerColor =
-                                    Color(0xFF1F2937).copy(alpha = 0.85f)
-                            ),
-                            border = BorderStroke(
-                                1.dp,
-                                Color.White.copy(alpha = 0.05f)
+                                    if (ThemeState.isDarkTheme.value)
+
+                                        DarkBackground
+                                    else
+                                        MaterialTheme.colorScheme.surface,
+
+                                contentColor =
+                                    if (ThemeState.isDarkTheme.value)
+                                        Color.White
+                                    else
+                                        Color.Black
                             )
                         ) {
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(18.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Column {
-
-                                    Text(
-                                        habit.name,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White
-                                    )
-
-                                    Spacer(Modifier.height(4.dp))
-
-                                    Text(
-                                        "${habit.streak} day streak",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.White.copy(alpha = 0.6f)
-                                    )
-                                }
-
-                                Surface(
-                                    shape = RoundedCornerShape(50),
-                                    color = Color(0xFF4F46E5).copy(alpha = 0.15f)
-                                ) {
-
-                                    Text(
-                                        "Open",
-                                        modifier = Modifier.padding(
-                                            horizontal = 14.dp,
-                                            vertical = 8.dp
-                                        ),
-                                        color = Color(0xFF818CF8),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
+                            Text("Open")
                         }
-                    }
-
-                    item {
-                        Spacer(Modifier.height(100.dp))
                     }
                 }
             }
+
+            Spacer(Modifier.height(100.dp))
         }
     }
 }

@@ -73,6 +73,10 @@ fun HabitSelectionScreen(
                         .fillMaxWidth()
                         .clickable { onCustomHabitClick() },
                     shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(
+                        2.dp,
+                        Color.White.copy(alpha = 0.2f)
+                    ),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF4F46E5)
                     )

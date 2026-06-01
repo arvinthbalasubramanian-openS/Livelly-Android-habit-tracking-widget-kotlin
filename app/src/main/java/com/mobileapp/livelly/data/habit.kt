@@ -10,5 +10,7 @@ data class Habit(
 
     val target: Int = 30,
 
-    val lastCompleted: Long = 0L
+    val lastCompleted: Long = 0L,
+
+    val widgetStyle: String = "planet"
 )

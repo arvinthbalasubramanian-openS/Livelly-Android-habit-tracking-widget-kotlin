@@ -4,6 +4,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
@@ -21,6 +23,7 @@ import androidx.navigation.NavController
 import com.mobileapp.livelly.data.Habit
 import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.ui.component.AppBackground
+import com.mobileapp.livelly.ui.component.PlanetWidget
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -91,6 +94,7 @@ fun HabitDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .statusBarsPadding()
                     .animateContentSize(),
                 horizontalAlignment =
@@ -113,7 +117,8 @@ fun HabitDetailScreen(
 
                 Box(
                     modifier = Modifier
-                        .size(260.dp)
+                        .height(320.dp)
+                        .fillMaxWidth()
                         .graphicsLayer {
 
                             scaleX = pulse
@@ -126,78 +131,60 @@ fun HabitDetailScreen(
                         MaterialTheme.colorScheme
                             .onBackground
 
-                    Canvas(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+                    PlanetWidget(
+                        progress = progress
+                    )
 
-                        val stroke = 18.dp.toPx()
-
-                        drawCircle(
-                            color =
-                            onBackground.copy(alpha = 0.2f),
-                            style = Stroke(width = stroke)
-                        )
-
-                        rotate(rotation) {
-
-                            drawArc(
-                                brush = Brush.sweepGradient(
-                                    listOf(
-                                        Color(0xFFFF7A18),
-                                        Color(0xFFFFB347)
-                                    )
-                                ),
-                                startAngle = -90f,
-                                sweepAngle =
-                                360 * animatedProgress,
-                                useCenter = false,
-                                style = Stroke(
-                                    width = stroke,
-                                    cap = StrokeCap.Round
-                                )
-                            )
-                        }
-                    }
-
-                    Column(
-                        horizontalAlignment =
-                        Alignment.CenterHorizontally
-                    ) {
-
-                        Text(
-                            text = "STREAK",
-                            style =
-                            MaterialTheme.typography
-                                .labelMedium,
-                            color =
-                            MaterialTheme.colorScheme
-                                .onBackground
-                                .copy(alpha = 0.6f)
-                        )
-
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            text = "$animatedStreak",
-                            fontSize = 42.sp,
-                            fontWeight = FontWeight.Bold,
-                            color =
-                            MaterialTheme.colorScheme.onBackground
-                        )
-
-                        Spacer(Modifier.height(4.dp))
-
-                        Text(
-                            text = "of $target days",
-                            style =
-                            MaterialTheme.typography.bodySmall,
-                            color =
-                            MaterialTheme.colorScheme
-                                .onBackground
-                                .copy(alpha = 0.5f)
-                        )
-                    }
                 }
+
+                Spacer(
+                    Modifier.height(24.dp)
+                )
+
+                Text(
+                    text = "$animatedStreak / $target",
+                    style =
+                        MaterialTheme.typography
+                            .headlineMedium,
+                    color =
+                        MaterialTheme.colorScheme
+                            .onBackground
+                )
+
+                Spacer(
+                    Modifier.height(6.dp)
+                )
+
+                Text(
+                    text =
+                        "${(progress * 100).toInt()}% Complete",
+                    style =
+                        MaterialTheme.typography
+                            .bodyMedium,
+                    color =
+                        MaterialTheme.colorScheme
+                            .onBackground
+                            .copy(alpha = 0.6f)
+                )
+
+                val stageName = when {
+
+                    progress < 0.2f -> "Seed World"
+
+                    progress < 0.4f -> "Emerging Planet"
+
+                    progress < 0.6f -> "Ringed Planet"
+
+                    progress < 0.8f -> "Starbound World"
+
+                    else -> "Living World"
+                }
+
+                Text(
+                    text = stageName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 Spacer(Modifier.height(40.dp))
 
@@ -206,8 +193,7 @@ fun HabitDetailScreen(
 
                         habit?.let { currentHabit ->
 
-                            val today =
-                                LocalDate.now()
+                            val today = LocalDate.now()
 
                             val updatedHabit = if (
                                 currentHabit.lastCompleted == 0L
@@ -216,7 +202,7 @@ fun HabitDetailScreen(
                                 currentHabit.copy(
                                     streak = 1,
                                     lastCompleted =
-                                    System.currentTimeMillis()
+                                        System.currentTimeMillis()
                                 )
 
                             } else {
@@ -224,13 +210,17 @@ fun HabitDetailScreen(
                                 val lastDate =
                                     Instant
                                         .ofEpochMilli(
-                                            currentHabit
-                                                .lastCompleted
+                                            currentHabit.lastCompleted
                                         )
                                         .atZone(
                                             ZoneId.systemDefault()
                                         )
                                         .toLocalDate()
+
+                                android.util.Log.d(
+                                    "LIVELLY",
+                                    "today=$today lastDate=$lastDate streak=${currentHabit.streak}"
+                                )
 
                                 when {
 
@@ -241,24 +231,23 @@ fun HabitDetailScreen(
                                     }
 
                                     // completed yesterday
-                                    lastDate.plusDays(1)
-                                            == today -> {
+                                    lastDate == today.minusDays(1) -> {
 
                                         currentHabit.copy(
                                             streak =
-                                            currentHabit.streak + 1,
+                                                currentHabit.streak + 1,
                                             lastCompleted =
-                                            System.currentTimeMillis()
+                                                System.currentTimeMillis()
                                         )
                                     }
 
-                                    // streak broken
+                                    // missed days
                                     else -> {
 
                                         currentHabit.copy(
                                             streak = 1,
                                             lastCompleted =
-                                            System.currentTimeMillis()
+                                                System.currentTimeMillis()
                                         )
                                     }
                                 }
@@ -267,7 +256,7 @@ fun HabitDetailScreen(
                             val updatedHabits =
                                 habits.map {
 
-                                    if (it.name == habitName)
+                                    if (it.id == currentHabit.id)
                                         updatedHabit
                                     else
                                         it
@@ -283,6 +272,7 @@ fun HabitDetailScreen(
 
                     Text("Complete")
                 }
+
 
                 Spacer(Modifier.height(20.dp))
 

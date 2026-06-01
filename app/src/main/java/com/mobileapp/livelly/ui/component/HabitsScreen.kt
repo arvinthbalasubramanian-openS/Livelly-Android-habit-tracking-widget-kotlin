@@ -87,7 +87,9 @@ fun HabitsScreen(
                 }
 
                 // 📜 LIST
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                )  {
 
                     items(
                         items = habits,
@@ -159,8 +161,6 @@ fun HabitsScreen(
                         }
                     }
                 }
-
-                Spacer(Modifier.weight(1f))
 
                 // 🔻 BUTTON
                 PrimaryButton(

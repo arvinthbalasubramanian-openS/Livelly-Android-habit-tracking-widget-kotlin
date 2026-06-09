@@ -4,6 +4,7 @@ import java.util.UUID
 
 data class Habit(
     val id: String = UUID.randomUUID().toString(),
+
     val name: String,
 
     val streak: Int = 0,
@@ -11,6 +12,8 @@ data class Habit(
     val target: Int = 30,
 
     val lastCompleted: Long = 0L,
+
+    val completionDates: List<Long> = emptyList(),
 
     val widgetStyle: String = "planet"
 )

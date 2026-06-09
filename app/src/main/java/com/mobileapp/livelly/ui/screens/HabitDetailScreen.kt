@@ -23,7 +23,10 @@ import androidx.navigation.NavController
 import com.mobileapp.livelly.data.Habit
 import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.ui.component.AppBackground
+import com.mobileapp.livelly.ui.component.HabitHeroCard
+import com.mobileapp.livelly.ui.component.HabitStatsCard
 import com.mobileapp.livelly.ui.component.PlanetWidget
+import com.mobileapp.livelly.ui.component.WeeklyProgressCard
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -86,205 +89,175 @@ fun HabitDetailScreen(
         ),
         label = ""
     )
-
     AppBackground {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+
+        Scaffold(
+
+            containerColor = Color.Transparent,
+
+            bottomBar = {
+
+                Surface(
+                    tonalElevation = 4.dp
+                ) {
+
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+
+                        onClick = {
+
+                            habit?.let { currentHabit ->
+
+                                val today = LocalDate.now()
+
+                                val updatedHabit =
+                                    if (
+                                        currentHabit.lastCompleted == 0L
+                                    ) {
+
+                                        currentHabit.copy(
+                                            streak = 1,
+
+                                            lastCompleted =
+                                                System.currentTimeMillis(),
+
+                                            completionDates =
+                                                currentHabit.completionDates +
+                                                        System.currentTimeMillis()
+                                        )
+
+                                    } else {
+
+                                        val lastDate =
+                                            Instant
+                                                .ofEpochMilli(
+                                                    currentHabit.lastCompleted
+                                                )
+                                                .atZone(
+                                                    ZoneId.systemDefault()
+                                                )
+                                                .toLocalDate()
+
+                                        when {
+
+                                            lastDate == today -> {
+
+                                                currentHabit
+                                            }
+
+                                            lastDate ==
+                                                    today.minusDays(1) -> {
+
+                                                currentHabit.copy(
+                                                    streak =
+                                                        currentHabit.streak + 1,
+
+                                                    lastCompleted =
+                                                        System.currentTimeMillis(),
+
+                                                    completionDates =
+                                                        currentHabit.completionDates +
+                                                                System.currentTimeMillis()
+                                                )
+                                            }
+
+                                            else -> {
+
+                                                currentHabit.copy(
+                                                    streak = 1,
+
+                                                    lastCompleted =
+                                                        System.currentTimeMillis(),
+
+                                                    completionDates =
+                                                        currentHabit.completionDates +
+                                                                System.currentTimeMillis()
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                val updatedHabits =
+                                    habits.map {
+
+                                        if (
+                                            it.id ==
+                                            currentHabit.id
+                                        )
+                                            updatedHabit
+                                        else
+                                            it
+                                    }
+
+                                HabitPrefs.saveHabits(
+                                    context,
+                                    updatedHabits
+                                )
+                            }
+                        }
+                    ) {
+
+                        Text(
+                            "Complete Today"
+                        )
+                    }
+                }
+            }
+        ) { padding ->
+
             Column(
+
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .statusBarsPadding()
-                    .animateContentSize(),
-                horizontalAlignment =
-                Alignment.CenterHorizontally
+                    .padding(padding)
+                    .padding(16.dp)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
             ) {
-
-                Spacer(Modifier.height(20.dp))
 
                 Text(
                     text = habitName,
                     style =
-                    MaterialTheme.typography
-                        .titleLarge,
-                    color =
-                    MaterialTheme.colorScheme
-                        .onBackground
-                )
-
-                Spacer(Modifier.height(30.dp))
-
-                Box(
-                    modifier = Modifier
-                        .height(320.dp)
-                        .fillMaxWidth()
-                        .graphicsLayer {
-
-                            scaleX = pulse
-                            scaleY = pulse
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    val onBackground =
-                        MaterialTheme.colorScheme
-                            .onBackground
-
-                    PlanetWidget(
-                        progress = progress
-                    )
-
-                }
-
-                Spacer(
-                    Modifier.height(24.dp)
-                )
-
-                Text(
-                    text = "$animatedStreak / $target",
-                    style =
-                        MaterialTheme.typography
-                            .headlineMedium,
-                    color =
-                        MaterialTheme.colorScheme
-                            .onBackground
+                        MaterialTheme
+                            .typography
+                            .headlineMedium
                 )
 
                 Spacer(
-                    Modifier.height(6.dp)
+                    Modifier.height(20.dp)
                 )
 
-                Text(
-                    text =
-                        "${(progress * 100).toInt()}% Complete",
-                    style =
-                        MaterialTheme.typography
-                            .bodyMedium,
-                    color =
-                        MaterialTheme.colorScheme
-                            .onBackground
-                            .copy(alpha = 0.6f)
+                HabitHeroCard(
+                    streak = streak,
+                    target = target
                 )
 
-                val stageName = when {
-
-                    progress < 0.2f -> "Seed World"
-
-                    progress < 0.4f -> "Emerging Planet"
-
-                    progress < 0.6f -> "Ringed Planet"
-
-                    progress < 0.8f -> "Starbound World"
-
-                    else -> "Living World"
-                }
-
-                Text(
-                    text = stageName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                Spacer(
+                    Modifier.height(20.dp)
                 )
 
-                Spacer(Modifier.height(40.dp))
+                WeeklyProgressCard(
+                    habit = habit
+                )
 
-                Button(
-                    onClick = {
+                Spacer(
+                    Modifier.height(20.dp)
+                )
 
-                        habit?.let { currentHabit ->
+                HabitStatsCard(
+                    streak = streak,
+                    target = target
+                )
 
-                            val today = LocalDate.now()
-
-                            val updatedHabit = if (
-                                currentHabit.lastCompleted == 0L
-                            ) {
-
-                                currentHabit.copy(
-                                    streak = 1,
-                                    lastCompleted =
-                                        System.currentTimeMillis()
-                                )
-
-                            } else {
-
-                                val lastDate =
-                                    Instant
-                                        .ofEpochMilli(
-                                            currentHabit.lastCompleted
-                                        )
-                                        .atZone(
-                                            ZoneId.systemDefault()
-                                        )
-                                        .toLocalDate()
-
-                                android.util.Log.d(
-                                    "LIVELLY",
-                                    "today=$today lastDate=$lastDate streak=${currentHabit.streak}"
-                                )
-
-                                when {
-
-                                    // already completed today
-                                    lastDate == today -> {
-
-                                        currentHabit
-                                    }
-
-                                    // completed yesterday
-                                    lastDate == today.minusDays(1) -> {
-
-                                        currentHabit.copy(
-                                            streak =
-                                                currentHabit.streak + 1,
-                                            lastCompleted =
-                                                System.currentTimeMillis()
-                                        )
-                                    }
-
-                                    // missed days
-                                    else -> {
-
-                                        currentHabit.copy(
-                                            streak = 1,
-                                            lastCompleted =
-                                                System.currentTimeMillis()
-                                        )
-                                    }
-                                }
-                            }
-
-                            val updatedHabits =
-                                habits.map {
-
-                                    if (it.id == currentHabit.id)
-                                        updatedHabit
-                                    else
-                                        it
-                                }
-
-                            HabitPrefs.saveHabits(
-                                context,
-                                updatedHabits
-                            )
-                        }
-                    }
-                ) {
-
-                    Text("Complete")
-                }
-
-
-                Spacer(Modifier.height(20.dp))
-
-                TextButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-
-                    Text("Back")
-                }
+                Spacer(
+                    Modifier.height(100.dp)
+                )
             }
         }
     }
+
+
 }

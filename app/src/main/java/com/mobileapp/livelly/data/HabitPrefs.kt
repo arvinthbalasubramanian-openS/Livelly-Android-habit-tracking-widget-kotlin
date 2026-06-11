@@ -5,10 +5,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.time.LocalDate
-import java.time.ZoneId
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 object HabitPrefs {
 
@@ -25,6 +21,20 @@ object HabitPrefs {
         val habits = if (json != null) {
             val type = object : TypeToken<List<Habit>>() {}.type
             Gson().fromJson<List<Habit>>(json, type)
+                .map { habit ->
+                    val completionDates = habit.completionDates.orEmpty()
+
+                    habit.copy(
+                        completionDates =
+                            if (
+                                completionDates.isEmpty() &&
+                                habit.lastCompleted > 0L
+                            )
+                                listOf(habit.lastCompleted)
+                            else
+                                completionDates
+                    )
+                }
         } else emptyList()
 
         _habitsFlow.value = habits

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-        android:minWidth="120dp"
-        android:minHeight="120dp"
-        android:updatePeriodMillis="0"
-        android:initialLayout="@layout/widget_layout"
-        android:widgetCategory="home_screen" />
-</PreferenceScreen>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="140dp"
+    android:minHeight="140dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_layout"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

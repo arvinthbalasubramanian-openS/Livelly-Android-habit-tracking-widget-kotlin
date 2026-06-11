@@ -1,32 +1,36 @@
 package com.mobileapp.livelly.ui.screens
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.glance.appwidget.updateAll
 import androidx.navigation.NavController
-import com.mobileapp.livelly.data.Habit
 import com.mobileapp.livelly.data.HabitPrefs
+import com.mobileapp.livelly.ui.component.AIInsightCard
 import com.mobileapp.livelly.ui.component.AppBackground
 import com.mobileapp.livelly.ui.component.HabitHeroCard
 import com.mobileapp.livelly.ui.component.HabitStatsCard
-import com.mobileapp.livelly.ui.component.PlanetWidget
 import com.mobileapp.livelly.ui.component.WeeklyProgressCard
+import com.mobileapp.livelly.widget.Livelly
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -38,6 +42,7 @@ fun HabitDetailScreen(
 ) {
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val habits by HabitPrefs.habitsFlow.collectAsState()
 
@@ -49,46 +54,6 @@ fun HabitDetailScreen(
 
     val target = habit?.target ?: 30
 
-    val progress =
-        (streak.toFloat() / target)
-            .coerceIn(0f, 1f)
-
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = tween(800),
-        label = ""
-    )
-
-    val animatedStreak by animateIntAsState(
-        targetValue = streak,
-        animationSpec = tween(500),
-        label = ""
-    )
-
-    val infiniteTransition =
-        rememberInfiniteTransition(label = "")
-
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = ""
-    )
-
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 12000,
-                easing = LinearEasing
-            )
-        ),
-        label = ""
-    )
     AppBackground {
 
         Scaffold(
@@ -111,6 +76,17 @@ fun HabitDetailScreen(
                             habit?.let { currentHabit ->
 
                                 val today = LocalDate.now()
+                                val completedAt = System.currentTimeMillis()
+                                val storedCompletionDates =
+                                    currentHabit.completionDates.orEmpty()
+                                val completionDates =
+                                    if (
+                                        storedCompletionDates.isEmpty() &&
+                                        currentHabit.lastCompleted > 0L
+                                    )
+                                        listOf(currentHabit.lastCompleted)
+                                    else
+                                        storedCompletionDates
 
                                 val updatedHabit =
                                     if (
@@ -121,11 +97,10 @@ fun HabitDetailScreen(
                                             streak = 1,
 
                                             lastCompleted =
-                                                System.currentTimeMillis(),
+                                                completedAt,
 
                                             completionDates =
-                                                currentHabit.completionDates +
-                                                        System.currentTimeMillis()
+                                                completionDates + completedAt
                                         )
 
                                     } else {
@@ -155,11 +130,10 @@ fun HabitDetailScreen(
                                                         currentHabit.streak + 1,
 
                                                     lastCompleted =
-                                                        System.currentTimeMillis(),
+                                                        completedAt,
 
                                                     completionDates =
-                                                        currentHabit.completionDates +
-                                                                System.currentTimeMillis()
+                                                        completionDates + completedAt
                                                 )
                                             }
 
@@ -169,11 +143,10 @@ fun HabitDetailScreen(
                                                     streak = 1,
 
                                                     lastCompleted =
-                                                        System.currentTimeMillis(),
+                                                        completedAt,
 
                                                     completionDates =
-                                                        currentHabit.completionDates +
-                                                                System.currentTimeMillis()
+                                                        completionDates + completedAt
                                                 )
                                             }
                                         }
@@ -195,6 +168,10 @@ fun HabitDetailScreen(
                                     context,
                                     updatedHabits
                                 )
+
+                                scope.launch {
+                                    Livelly().updateAll(context)
+                                }
                             }
                         }
                     ) {
@@ -236,7 +213,15 @@ fun HabitDetailScreen(
                 )
 
                 Spacer(
-                    Modifier.height(20.dp)
+                    Modifier.height(16.dp)
+                )
+
+                AIInsightCard(
+                    habit = habit
+                )
+
+                Spacer(
+                    Modifier.height(16.dp)
                 )
 
                 WeeklyProgressCard(
@@ -244,12 +229,13 @@ fun HabitDetailScreen(
                 )
 
                 Spacer(
-                    Modifier.height(20.dp)
+                    Modifier.height(16.dp)
                 )
 
                 HabitStatsCard(
                     streak = streak,
-                    target = target
+                    target = target,
+                    completionDates = habit?.completionDates.orEmpty()
                 )
 
                 Spacer(
@@ -258,6 +244,4 @@ fun HabitDetailScreen(
             }
         }
     }
-
-
 }

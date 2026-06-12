@@ -78,7 +78,7 @@ fun HabitDetailScreen(
                                 val today = LocalDate.now()
                                 val completedAt = System.currentTimeMillis()
                                 val storedCompletionDates =
-                                    currentHabit.completionDates.orEmpty()
+                                    (currentHabit.completionDates ?: emptyList()).orEmpty()
                                 val completionDates =
                                     if (
                                         storedCompletionDates.isEmpty() &&

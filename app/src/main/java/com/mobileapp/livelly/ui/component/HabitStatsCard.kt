@@ -22,10 +22,10 @@ import androidx.compose.ui.unit.dp
 fun HabitStatsCard(
     streak: Int,
     target: Int,
-    completionDates: List<Long> = emptyList()
+    completionDates: List<Long>? = emptyList()
 ) {
     val safeTarget = target.coerceAtLeast(1)
-    val totalCompletions = completionDates.size
+    val totalCompletions = completionDates.orEmpty().size
     val targetProgress = (streak.toFloat() / safeTarget * 100).toInt().coerceIn(0, 100)
     val completionRate = (totalCompletions.toFloat() / safeTarget * 100).toInt().coerceIn(0, 100)
 

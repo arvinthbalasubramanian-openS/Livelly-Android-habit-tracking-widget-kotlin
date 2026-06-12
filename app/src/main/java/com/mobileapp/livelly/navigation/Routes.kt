@@ -20,6 +20,8 @@ object Routes {
     const val HABITS_LIST =
         "habits_list"
 
+    const val WIDGETS = "widgets"
+
     const val SETTINGS = "settings"
 
     const val HABIT_NAME = "habitName"

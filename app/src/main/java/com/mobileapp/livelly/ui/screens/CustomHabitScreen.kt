@@ -1,8 +1,10 @@
 package com.mobileapp.livelly.ui.screens
 
-import android.R.style
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -98,6 +105,60 @@ fun CustomHabitScreen(
                     .fillMaxWidth()
             )
 
+            Spacer(Modifier.height(16.dp))
+
+            var expanded by remember { mutableStateOf(false) }
+            val options = listOf("7", "14", "21", "30", "60", "100")
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                TextField(
+                    value = "Target: $target days",
+                    onValueChange = {},
+                    readOnly = true,
+                    shape = RoundedCornerShape(18.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.65f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        disabledTextColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { expanded = true }
+                )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    options.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text("$option days", color = MaterialTheme.colorScheme.onSurface) },
+                            onClick = {
+                                target = option
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
             Spacer(Modifier.weight(1f))
 
             PrimaryButton(
@@ -118,19 +179,6 @@ fun CustomHabitScreen(
                         )
                     }
                 }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = target,
-                onValueChange = {
-                    target = it
-                },
-                label = {
-                    Text("Target days")
-                },
-                singleLine = true
             )
         }
     }

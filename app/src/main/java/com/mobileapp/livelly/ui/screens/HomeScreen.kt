@@ -20,11 +20,9 @@ import androidx.navigation.NavController
 import com.mobileapp.livelly.data.HabitPrefs
 import com.mobileapp.livelly.data.UserPrefs
 import com.mobileapp.livelly.ui.component.AppBackground
-import coil.compose.AsyncImage
-import com.mobileapp.livelly.data.ProfilePrefs
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.draw.clip
 import com.mobileapp.livelly.navigation.Routes
 import com.mobileapp.livelly.ui.theme.DarkBackground
@@ -39,8 +37,6 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val habits by HabitPrefs.habitsFlow.collectAsState()
-    val profileImage =
-        ProfilePrefs.getProfileImage(context)
 
     val userName = UserPrefs.getName(context)
         ?.lowercase()
@@ -87,31 +83,19 @@ fun HomeScreen(
 
                 Box(
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         .clickable {
                             navController.navigate(Routes.SETTINGS)
                         },
                     contentAlignment = Alignment.Center
                 ) {
-
-                    if (profileImage != null) {
-
-                        AsyncImage(
-                            model = profileImage,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
-                        )
-
-                    } else {
-
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                    )
                 }
             }
 

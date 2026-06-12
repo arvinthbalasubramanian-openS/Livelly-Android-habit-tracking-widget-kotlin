@@ -13,7 +13,7 @@ data class Habit(
 
     val lastCompleted: Long = 0L,
 
-    val completionDates: List<Long> = emptyList(),
+    val completionDates: List<Long>? = emptyList(),
 
     val widgetStyle: String = "planet"
 )

@@ -54,6 +54,8 @@ fun AppNav() {
 
         "habits_list",
 
+        "widgets",
+
         "settings",
 
         "habit_detail/{habitName}"
@@ -162,6 +164,10 @@ fun AppNav() {
                         selectedHabitName = null,
                         navController = navController
                     )
+                }
+
+                composable(Routes.WIDGETS) {
+                    WidgetScreen()
                 }
 
                 composable(Routes.HABIT_DETAIL) { backStackEntry ->

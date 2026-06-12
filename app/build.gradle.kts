@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.foundation)
     implementation(libs.runtime)
+    implementation(libs.google.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
